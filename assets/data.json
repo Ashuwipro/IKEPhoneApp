@@ -1,0 +1,63 @@
+[
+    {
+        "id": 1,
+        "question": "question 1",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCQ",
+        "correctAnswer": ["optionA"]
+    },
+    {
+        "id": 2,
+        "question": "question 2",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCQ",
+        "correctAnswer": ["optionB"]
+    },
+    {
+        "id": 3,
+        "question": "question 3",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCQ",
+        "correctAnswer": ["optionC"]
+    },
+    {
+        "id": 4,
+        "question": "question 4",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCA",
+        "correctAnswer": ["optionA", "optionB"]
+    },
+    {
+        "id": 5,
+        "question": "question 5",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCA",
+        "correctAnswer": ["optionB", "optionC"]
+    },
+    {
+        "id": 6,
+        "question": "question 6",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "type":"MCA",
+        "correctAnswer": ["optionC", "optionD"]
+    }
+    
+]
