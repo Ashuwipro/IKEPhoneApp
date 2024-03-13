@@ -17,6 +17,8 @@ import {
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 
+import registeredUser from "./database/registeredUser.json";
+
 function Register(props) {
   const [email, setEmail] = React.useState("");
   const [pass, setPass] = React.useState("");
@@ -25,6 +27,11 @@ function Register(props) {
   const [secure, setSecure] = React.useState(true);
 
   const change = props.viewChange;
+
+  const saveUser = (email, name, pass) => {
+    console.log({ email, name, pass });
+    //code to save to database or local json file
+  };
 
   return (
     <View>
@@ -206,17 +213,20 @@ function Register(props) {
           type="primary"
           backgroundColor="green"
           textColor="black"
-          width={400}
+          width={"100%"}
           height={75}
           disabled={false}
           raiseLevel={5}
-          onPress={() => {
-            console.log("Registered !!!");
-          }}
+          onPress={saveUser.bind(this, email, name, pass)}
         >
           REGISTER
         </ThemedButton>
       </View>
+
+      {/* two modal, one for showing success message and button 
+      proceed to Login
+      another modal for showing error message and button
+      try again */}
 
       <View
         style={{

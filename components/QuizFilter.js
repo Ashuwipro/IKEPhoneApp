@@ -35,6 +35,7 @@ function QuizFilter(props) {
           Page for applying additional filters, more filters to be added
         </Text>
       </View>
+
       <View
         style={{
           marginTop: 200,

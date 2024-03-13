@@ -1,10 +1,8 @@
 import React from "react";
-import { ThemedButton } from "react-native-really-awesome-button";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MainScreen from "./components/MainScreen";
 import UploadQuestions from "./components/UploadQuestions";
-import PlayQuiz from "./components/PlayQuiz";
 import QuizFilter from "./components/QuizFilter";
 import MCQQuiz from "./components/MCQQuiz";
 import MCAQuiz from "./components/MCAQuiz";

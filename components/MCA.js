@@ -324,7 +324,7 @@ function MCA(props) {
 
 const style = StyleSheet.create({
   optionInput: {
-    marginRight: "5%",
+    marginRight: "4%",
     marginLeft: "5%",
     backgroundColor: "white",
     flex: 1.5,

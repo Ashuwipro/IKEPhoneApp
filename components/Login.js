@@ -10,7 +10,11 @@ import {
 import { TextInput } from "react-native-paper";
 import { Switch } from "react-native-switch";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faInfoCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import {
   faApple,
@@ -19,6 +23,7 @@ import {
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import ForgotPassword from "./ForgotPassword";
+import registerUser from "./database/registeredUser.json";
 
 function Login(props) {
   const [email, setEmail] = React.useState("");
@@ -96,6 +101,43 @@ function Login(props) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
     return OTP;
+  };
+
+  const checkUser = (email, pass) => {
+    for (var user in registerUser["users"]) {
+      if (
+        registerUser["users"][user]["email"] === email &&
+        registerUser["users"][user]["password"] === pass
+      ) {
+        console.log("user found in the file");
+        break;
+      }
+    }
+  };
+
+  const validateEmail = (email) => {
+    if (email == "") return true;
+    for (var user in registerUser["users"]) {
+      if (registerUser["users"][user]["email"] === email) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const checkEmail = (email) => {
+    return (
+      email == "" ||
+      String(email)
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+    );
+  };
+
+  const checkPassword = (pass) => {
+    return pass !== "";
   };
 
   return (
@@ -199,7 +241,7 @@ function Login(props) {
             marginTop: "10%",
             backgroundColor: "white",
             minHeight: "10%",
-            fontSize: 25,
+            fontSize: 20,
           }}
           mode="outlined"
           label="Email"
@@ -207,10 +249,33 @@ function Login(props) {
           outlineColor="black"
           multiline={false}
           activeOutlineColor="blue"
+          autoCapitalize="none"
           value={email}
           onChangeText={(text) => setEmail(text)}
         />
       </View>
+      {/* if email not correct then display invalid email message */}
+      {!checkEmail(email) && (
+        <View>
+          <Text style={{ marginLeft: "7%", color: "red" }}>Invalid email</Text>
+        </View>
+      )}
+      {/* if email correct but not in database */}
+      {checkEmail(email) && !validateEmail(email) && (
+        <View>
+          <Text style={{ marginLeft: "7%", color: "orange" }}>
+            Email not found in database
+          </Text>
+        </View>
+      )}
+      {/* if email correct and also in database */}
+      {checkEmail(email) && validateEmail(email) && email !== "" && (
+        <View>
+          <Text style={{ marginLeft: "7%", color: "green" }}>
+            Email found in database
+          </Text>
+        </View>
+      )}
       <View
         style={{
           flexDirection: "row",
@@ -223,7 +288,7 @@ function Login(props) {
             marginTop: "5%",
             backgroundColor: "white",
             minHeight: "10%",
-            fontSize: 25,
+            fontSize: 20,
             flex: 1,
           }}
           mode="outlined"
@@ -247,6 +312,26 @@ function Login(props) {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* check if password is in correct format */}
+
+      {checkPassword(pass) && (
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Text style={{ color: "red", marginLeft: "7%", paddingRight: "2%" }}>
+            Password format not correct
+          </Text>
+          <View>
+            <FontAwesomeIcon icon={faInfoCircle} size={20} />
+          </View>
+        </View>
+      )}
+
       <View
         style={{
           display: "flex",
@@ -298,7 +383,6 @@ function Login(props) {
           </Text>
         </View>
       </View>
-
       {/* <SafeAreaView>
         <Modal transparent={true} visible={true} animationType="slide">
           <View
@@ -342,22 +426,18 @@ function Login(props) {
           </View>
         </Modal>
       </SafeAreaView> */}
-
       {forgot && <ForgotPassword change={changeForgot} />}
-
       <View style={{ marginHorizontal: 15 }}>
         <ThemedButton
           name="bruce"
           type="primary"
           backgroundColor="green"
           textColor="black"
-          width={400}
+          width={"100%"}
           height={75}
           disabled={false}
           raiseLevel={5}
-          onPress={() => {
-            console.log("Logged in!!!");
-          }}
+          onPress={checkUser.bind(this, email, pass)}
         >
           LOGIN
         </ThemedButton>

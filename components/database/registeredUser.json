@@ -1,0 +1,8 @@
+{
+    "users": [
+        {"email":"abc@mail.com", "password":"1234", "username":"abc"},
+        {"email":"xyz@mail.com", "password":"5678", "username":"qwerty"},
+        {"email":"weds@mail.com", "password":"3245", "username":"gthy"},
+        {"email":"qawed@mail.com", "password":"8976", "username":"erd"}
+    ]
+}

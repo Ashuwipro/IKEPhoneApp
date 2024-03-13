@@ -1,23 +1,42 @@
 import React from "react";
-import { SafeAreaView, View, Text, ScrollView } from "react-native";
-import { TextInput } from "react-native-paper";
-import MCQ from "./MCQ";
+import {
+  SafeAreaView,
+  View,
+  BackHandler,
+  Alert,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import { Button, TextInput } from "react-native-paper";
 import MCA from "./MCA";
 
 import DropDownPicker from "react-native-dropdown-picker";
 import { ThemedButton } from "react-native-really-awesome-button";
-
 import AddFile from "./AddFile";
 
-export default function UploadQuestions() {
+import { HeaderBackButton } from "@react-navigation/elements";
+import { width } from "deprecated-react-native-prop-types/DeprecatedImagePropType";
+
+export default function UploadQuestions(props) {
   const [isOpenType, setIsOpenType] = React.useState(false);
   const [currentValueType, setCurrentValueType] = React.useState("MCA");
   const [isOpenOpt, setIsOpenOpt] = React.useState(false);
   const [currentValueOpt, setCurrentValueOpt] = React.useState(2);
   const [question, setQuestion] = React.useState("");
+  const [numData, setNumData] = React.useState([
+    { label: 2, value: 2 },
+    { label: 3, value: 3 },
+    { label: 4, value: 4 },
+    { label: 5, value: 5 },
+  ]);
 
   const [checkEnabled, setCheckEnabled] = React.useState(false);
   const [resetEnabled, setResetEnabled] = React.useState(false);
+
+  const [childTrigger, setChildTrigger] = React.useState(0);
+
+  const [display, setDisplay] = React.useState(true);
 
   const data = [
     { label: "Multiple Choice Question", value: "MCQ" },
@@ -27,12 +46,12 @@ export default function UploadQuestions() {
     },
   ];
 
-  const numOpt = [
-    { label: 2, value: 2 },
-    { label: 3, value: 3 },
-    { label: 4, value: 4 },
-    { label: 5, value: 5 },
-  ];
+  // const numOpt = [
+  //   { label: 2, value: 2 },
+  //   { label: 3, value: 3 },
+  //   { label: 4, value: 4 },
+  //   { label: 5, value: 5 },
+  // ];
 
   const resetDetails = () => {
     setQuestion("");
@@ -43,18 +62,72 @@ export default function UploadQuestions() {
     setRBValue("");
   };
 
+  const windowWidth = Dimensions.get("window").width;
+  const windowHeight = Dimensions.get("window").height;
+
+  const changeDisplay = () => {
+    console.log("upload question file width:=", windowWidth);
+    console.log("upload question file height:=", windowHeight);
+    setDisplay(!display);
+  };
+
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+
+  //handle deletion of file on pressing back button from header
+  React.useEffect(() => {
+    props.navigation.setOptions({
+      headerShown: true,
+      headerLeft: (prop) => (
+        <HeaderBackButton
+          {...prop}
+          style={{ marginLeft: 0 }}
+          onPress={() => {
+            setChildTrigger((childTrigger) => childTrigger + 1);
+            props.navigation.navigate("Home");
+          }}
+        />
+      ),
+    });
+  }, []);
+
+  //handle deletion of file on pressing mobile back button
+  React.useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Hold on!", "Are you sure you want to go back?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel",
+        },
+        {
+          text: "YES",
+          onPress: () => {
+            setChildTrigger((childTrigger) => childTrigger + 1);
+            props.navigation.navigate("Home");
+          },
+        },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
       <View
         style={{
-          marginTop: 20,
-          maxHeight: "17%",
-          zIndex: 2,
-          marginHorizontal: 10,
+          marginTop: "5%",
+          zIndex: 5,
+          marginHorizontal: "3%",
+          display: display ? "block" : "none",
         }}
       >
         <DropDownPicker
@@ -67,51 +140,58 @@ export default function UploadQuestions() {
           placeholder="Type of Quiz"
         />
       </View>
-
-      <View>
+      <View
+        style={{
+          height: 150,
+          marginTop: "5%",
+          marginHorizontal: "3%",
+          display: display ? "block" : "none",
+        }}
+      >
         <TextInput
           style={{
-            marginHorizontal: "5%",
-            marginBottom: "2%",
-            marginTop: "5%",
             backgroundColor: "white",
-            minHeight: "15%",
+            minHeight: 140,
           }}
           mode="outlined"
           label="Question"
           placeholder="Enter your question here"
           outlineColor="black"
+          numberOfLines={3}
           multiline
           activeOutlineColor="blue"
           value={question}
-          onChangeText={(text) => setQuestion(text)}
+          onChangeText={(text) => {
+            setQuestion(text);
+          }}
         />
       </View>
 
-      <View style={{ flexDirection: "row" }}>
-        <AddFile />
-      </View>
+      <AddFile childTrigger={childTrigger} display={changeDisplay} />
 
       <View
         style={{
           width: "20%",
-          marginTop: "2%",
+          marginTop: "4%",
           alignSelf: "flex-end",
-          marginRight: "5%",
+          marginRight: "4%",
           zIndex: 2,
+          display: display ? "block" : "none",
         }}
       >
         <DropDownPicker
-          items={numOpt}
+          items={numData}
           open={isOpenOpt}
           setOpen={() => setIsOpenOpt(!isOpenOpt)}
           value={currentValueOpt}
           setValue={(val) => setCurrentValueOpt(val)}
           maxHeight={200}
-          placeholder="Number of Option"
+          closeOnBackPressed={true}
+          placeholder="Number of option"
         />
       </View>
-      <View>
+
+      <View style={{ display: display ? "block" : "none" }}>
         <MCA opt={currentValueOpt} type={currentValueType} />
       </View>
 
@@ -172,33 +252,47 @@ export default function UploadQuestions() {
         </View>
       </Modal> */}
 
-      <View style={{ marginHorizontal: 15, marginVertical: 15, marginTop: 20 }}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          backgroundColor="green"
-          width={400}
-          // disabled={!checkEnabled}
-          // onPress={submitQuestion}
-          disabled={false}
-          onPress={toggleModal}
-          raiseLevel={5}
+      <View>
+        <View
+          style={{
+            marginHorizontal: "3%",
+            marginTop: "5%",
+            display: display ? "block" : "none",
+          }}
         >
-          PREVIEW
-        </ThemedButton>
-      </View>
-      <View style={{ marginHorizontal: 15 }}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          backgroundColor="red"
-          width={400}
-          disabled={!resetEnabled}
-          onPress={resetDetails}
-          raiseLevel={5}
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            backgroundColor="green"
+            width={"100%"}
+            // disabled={!checkEnabled}
+            // onPress={submitQuestion}
+            disabled={false}
+            onPress={toggleModal}
+            raiseLevel={5}
+          >
+            PREVIEW
+          </ThemedButton>
+        </View>
+        <View
+          style={{
+            marginHorizontal: "3%",
+            marginTop: "5%",
+            display: display ? "block" : "none",
+          }}
         >
-          RESET
-        </ThemedButton>
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            backgroundColor="red"
+            width={"100%"}
+            disabled={!resetEnabled}
+            onPress={resetDetails}
+            raiseLevel={5}
+          >
+            RESET
+          </ThemedButton>
+        </View>
       </View>
     </SafeAreaView>
   );
