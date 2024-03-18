@@ -4,19 +4,22 @@ import {
   View,
   BackHandler,
   Alert,
-  Text,
   Dimensions,
-  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  Text,
 } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { TextInput } from "react-native-paper";
 import MCA from "./MCA";
+import { Image } from "expo-image";
+import { Video, ResizeMode, Audio } from "expo-av";
 
 import DropDownPicker from "react-native-dropdown-picker";
 import { ThemedButton } from "react-native-really-awesome-button";
 import AddFile from "./AddFile";
 
 import { HeaderBackButton } from "@react-navigation/elements";
-import { width } from "deprecated-react-native-prop-types/DeprecatedImagePropType";
+import PreviewModal from "./PreviewModal";
 
 export default function UploadQuestions(props) {
   const [isOpenType, setIsOpenType] = React.useState(false);
@@ -31,10 +34,17 @@ export default function UploadQuestions(props) {
     { label: 5, value: 5 },
   ]);
 
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [checkEnabled, setCheckEnabled] = React.useState(false);
   const [resetEnabled, setResetEnabled] = React.useState(false);
 
   const [childTrigger, setChildTrigger] = React.useState(0);
+  const [fileAdded, setFileAdded] = React.useState(false);
+  const [optionsAdded, setOptionsAdded] = React.useState(false);
+  const [optArr, setOptArr] = React.useState(false);
+
+  const [fileType, setFileType] = React.useState("");
+  const [filePath, setFilePath] = React.useState({});
 
   const [display, setDisplay] = React.useState(true);
 
@@ -46,6 +56,38 @@ export default function UploadQuestions(props) {
     },
   ];
 
+  const options = [
+    ["OptionA", "Optiona"],
+    ["OptionB", "Optionb"],
+    ["OptionC", "Optionc"],
+    ["OptionD", "Optiond"],
+    ["OptionE", "Optione"],
+  ];
+
+  const fileChange = (path, type) => {
+    setFilePath(path);
+    setFileType(type);
+    setFileAdded(true);
+  };
+
+  const fileRemove = () => {
+    setFilePath({});
+    setFileType("");
+    setFileAdded(false);
+  };
+
+  const optionChange = () => {
+    setOptionsAdded(true);
+  };
+
+  const optionEmpty = () => {
+    setOptionsAdded(false);
+  };
+
+  const someOptChange = () => {
+    setOptArr(true);
+  };
+
   // const numOpt = [
   //   { label: 2, value: 2 },
   //   { label: 3, value: 3 },
@@ -53,13 +95,24 @@ export default function UploadQuestions(props) {
   //   { label: 5, value: 5 },
   // ];
 
+  React.useEffect(() => {
+    if (question && fileAdded && optionsAdded) {
+      setCheckEnabled(true);
+    } else if (question || fileAdded || optArr) {
+      setResetEnabled(true);
+    } else {
+      setResetEnabled(false);
+      setCheckEnabled(false);
+    }
+  }, [question, fileAdded, optionsAdded, optArr]);
+
   const resetDetails = () => {
     setQuestion("");
-    setOptionA("");
-    setOptionB("");
-    setOptionC("");
-    setOptionD("");
-    setRBValue("");
+    setChildTrigger((childTrigger) => childTrigger + 1);
+    setResetEnabled(false);
+    setOptionsAdded(false);
+    setCheckEnabled(false);
+    setOptArr(false);
   };
 
   const windowWidth = Dimensions.get("window").width;
@@ -167,7 +220,12 @@ export default function UploadQuestions(props) {
         />
       </View>
 
-      <AddFile childTrigger={childTrigger} display={changeDisplay} />
+      <AddFile
+        fileChange={fileChange}
+        childTrigger={childTrigger}
+        display={changeDisplay}
+        fileRemove={fileRemove}
+      />
 
       <View
         style={{
@@ -192,65 +250,27 @@ export default function UploadQuestions(props) {
       </View>
 
       <View style={{ display: display ? "block" : "none" }}>
-        <MCA opt={currentValueOpt} type={currentValueType} />
+        <MCA
+          optionChange={optionChange}
+          optionEmpty={optionEmpty}
+          childTrigger={childTrigger}
+          opt={currentValueOpt}
+          type={currentValueType}
+          someOptChange={someOptChange}
+        />
       </View>
 
-      {/* <Modal transparent={true} visible={isModalVisible} animationType="fade">
-        <View style={style.centeredView}>
-          <View style={style.modalView}>
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              Question : {question}
-            </Text>
-            <View
-              style={{
-                borderBottomColor: "black",
-                borderBottomWidth: 1,
-              }}
-            ></View>
-            <Text style={{ fontSize: 20 }}>Option A : {optionA}</Text>
-            <Text style={{ fontSize: 20 }}>Option B : {optionB}</Text>
-            <Text style={{ fontSize: 20 }}>Option C : {optionC}</Text>
-            <Text style={{ fontSize: 20 }}>Option D : {optionD}</Text>
-            <View
-              style={{
-                borderBottomColor: "black",
-                borderBottomWidth: 1,
-              }}
-            ></View>
-            <Text style={{ fontSize: 20 }}>Correct Answer : {rbValue}</Text>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <ThemedButton
-                name="bruce"
-                type="primary"
-                backgroundColor="red"
-                width={150}
-                disabled={false}
-                raiseLevel={5}
-                onPress={toggleModal}
-              >
-                CANCEL
-              </ThemedButton>
-              <ThemedButton
-                name="bruce"
-                type="primary"
-                backgroundColor="green"
-                width={150}
-                disabled={false}
-                raiseLevel={5}
-                onPress={toggleModal}
-              >
-                SUBMIT
-              </ThemedButton>
-            </View>
-          </View>
-        </View>
-      </Modal> */}
+      {isModalVisible && (
+        <PreviewModal
+          question={question}
+          fileType={fileType}
+          filePath={filePath}
+          numOpt={currentValueOpt}
+          type={currentValueType}
+          opt={""}
+          toggleModal={toggleModal}
+        />
+      )}
 
       <View>
         <View
@@ -265,9 +285,8 @@ export default function UploadQuestions(props) {
             type="primary"
             backgroundColor="green"
             width={"100%"}
-            // disabled={!checkEnabled}
+            disabled={!checkEnabled}
             // onPress={submitQuestion}
-            disabled={false}
             onPress={toggleModal}
             raiseLevel={5}
           >

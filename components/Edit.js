@@ -3,10 +3,30 @@ import { View } from "react-native";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { ImageEditor } from "expo-crop-image";
 
-function Edit() {
+function Edit({ filePath, changeFilePath, type }) {
+  const [openImageEdit, setOpenImageEdit] = React.useState(false);
+
   return (
     <View>
+      {openImageEdit && (
+        <ImageEditor
+          imageUri={filePath}
+          fixedAspectRatio={2 / 3}
+          minimumCropDimensions={{
+            width: 50,
+            height: 50,
+          }}
+          onEditingCancel={() => {
+            console.log("onEditingCancel");
+          }}
+          onEditingComplete={(image) => {
+            changeFilePath(image.uri);
+            setOpenImageEdit(false);
+          }}
+        />
+      )}
       <ThemedButton
         name="bruce"
         type="primary"
@@ -17,7 +37,9 @@ function Edit() {
         disabled={false}
         raiseLevel={5}
         onPress={() => {
-          console.log("video sent for edit");
+          if (type === "image") {
+            setOpenImageEdit(true);
+          }
         }}
       >
         <FontAwesomeIcon

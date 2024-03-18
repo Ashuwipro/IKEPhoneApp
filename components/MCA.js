@@ -97,6 +97,39 @@ function MCA(props) {
   ];
 
   React.useEffect(() => {
+    if (optionA || optionB || optionC || optionD || optionE) {
+      props.someOptChange();
+    }
+    if (correctAns.length > 0) {
+      if (props.opt === 2 && optionA && optionB) {
+        props.optionChange();
+      } else if (props.opt === 3 && optionA && optionB && optionC) {
+        props.optionChange();
+      } else if (props.opt === 4 && optionA && optionB && optionC && optionD) {
+        props.optionChange();
+      } else if (
+        props.opt === 5 &&
+        optionA &&
+        optionB &&
+        optionC &&
+        optionD &&
+        optionE
+      ) {
+        props.optionChange();
+      }
+    } else if (
+      !optionA ||
+      !optionB ||
+      !optionC ||
+      !optionD ||
+      !optionE ||
+      correctAns.length === 0
+    ) {
+      props.optionEmpty();
+    }
+  }, [optionA, optionB, optionC, optionD, optionE, correctAns]);
+
+  React.useEffect(() => {
     setNumOpt(myFunc(props.opt));
   }, [props.opt]);
 
@@ -143,6 +176,21 @@ function MCA(props) {
       setCorrectAns(correctAns.filter((item) => item != "optionE"));
     }
   }, [optEchecked]);
+
+  React.useEffect(() => {
+    setOptionA("");
+    setOptionB("");
+    setOptionC("");
+    setOptionD("");
+    setOptionE("");
+    setOptAchecked(false);
+    setOptBchecked(false);
+    setOptCchecked(false);
+    setOptDchecked(false);
+    setOptEchecked(false);
+    setRBValue("");
+    setCorrectAns([]);
+  }, [props.childTrigger]);
 
   // const isCheckedA = () => {
   //   setOptAchecked(!optAchecked);

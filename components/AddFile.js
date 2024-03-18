@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -27,7 +28,7 @@ import Delete from "./Delete";
 import Edit from "./Edit";
 //import * as ScreenOrientation from "expo-screen-orientation";
 
-function AddFile({ childTrigger, display }) {
+function AddFile({ childTrigger, display, fileChange, fileRemove }) {
   const [fileNotAdded, setFileNotAdded] = React.useState(true);
   const [audioFileAdded, setAudioFileAdded] = React.useState(false);
   const [videoFileAdded, setVideoFileAdded] = React.useState(false);
@@ -35,7 +36,7 @@ function AddFile({ childTrigger, display }) {
   const [textInputAdded, setTextInputAdded] = React.useState(false);
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
-  const [filePath, setFilePath] = React.useState({ abc: "def" });
+  const [filePath, setFilePath] = React.useState({});
   const [description, setDescription] = React.useState("");
   const [audioPlaying, setAudioPlaying] = React.useState(false);
   const [sound, setSound] = React.useState(new Audio.Sound());
@@ -44,6 +45,7 @@ function AddFile({ childTrigger, display }) {
   const [audioSliderDuration, setAudioSliderDuration] = React.useState(
     convertSecToHMS(0)
   );
+  const [type, setType] = React.useState("");
   const [videoPosition, setVideoPosition] = React.useState(0);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -51,7 +53,7 @@ function AddFile({ childTrigger, display }) {
 
   const [videoPressed, setVideoPressed] = React.useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const [btnDisplay, setBtnDisplay] = React.useState(true);
 
   // const [orientation, setOrientation] = React.useState(
@@ -83,6 +85,14 @@ function AddFile({ childTrigger, display }) {
   //   console.log("Orientation:=", orientation);
   // }, [orientation]);
 
+  React.useEffect(() => {
+    if (!fileNotAdded) {
+      fileChange(filePath, type);
+    } else {
+      fileRemove();
+    }
+  }, [fileNotAdded]);
+
   const fadeIn = () => {
     // Will change fadeAnim value to 1 in 1 seconds
     Animated.timing(fadeAnim, {
@@ -101,9 +111,13 @@ function AddFile({ childTrigger, display }) {
     }).start();
   };
 
+  const changeFilePath = (path) => {
+    setFilePath(path);
+  };
+
   React.useEffect(() => {
-    console.log("Add file rendered");
-  }, []);
+    console.log("File Path:=", filePath);
+  }, [filePath]);
 
   React.useEffect(() => {
     if (videoPressed) {
@@ -123,6 +137,7 @@ function AddFile({ childTrigger, display }) {
       });
 
       if (!result.canceled) {
+        setType(type);
         setFilePath(result.assets[0].uri);
         setFileNotAdded(false);
         if (type === "Videos") {
@@ -145,6 +160,7 @@ function AddFile({ childTrigger, display }) {
       });
 
       if (!result.canceled) {
+        setType("audio");
         setFilePath(result.assets[0].uri);
         setFileNotAdded(false);
         setAudioFileAdded(true);
@@ -210,6 +226,7 @@ function AddFile({ childTrigger, display }) {
     setDuration(0);
     setTime(0);
     setAudioSliderDuration(0);
+    setType("");
     if (type === "audio") {
       setAudioFileAdded(false);
       await sound.stopAsync();
@@ -226,6 +243,8 @@ function AddFile({ childTrigger, display }) {
   const textButtonPressed = () => {
     setFileNotAdded(false);
     setTextInputAdded(true);
+    setType("text");
+    setFilePath({});
   };
 
   const windowWidth = Dimensions.get("window").width;
@@ -369,7 +388,12 @@ function AddFile({ childTrigger, display }) {
                 marginHorizontal: "3%",
               }}
             >
-              <View style={{ width: "78%", marginLeft: "1%" }}>
+              <View
+                style={{
+                  width: Platform.OS === "ios" ? "78%" : "76%",
+                  marginLeft: "1%",
+                }}
+              >
                 <Slider
                   style={{ marginTop: "10%" }}
                   value={time}
@@ -421,9 +445,10 @@ function AddFile({ childTrigger, display }) {
                 btnDisplay
                   ? {
                       width: "100%",
-                      height: display2 ? 170 : "100%",
+                      height: btnDisplay ? 170 : "100%",
                       flexDirection: "row",
                       marginHorizontal: "3%",
+                      marginRight: "2%",
                     }
                   : {}
               }
@@ -434,7 +459,7 @@ function AddFile({ childTrigger, display }) {
                     ? {
                         borderWidth: 2,
                         borderRadius: 5,
-                        width: "78%",
+                        width: Platform.OS === "ios" ? "78%" : "76%",
                         marginRight: "1%",
                         backgroundColor: "black",
                       }
@@ -465,7 +490,7 @@ function AddFile({ childTrigger, display }) {
                             }
                       }
                       source={{
-                        uri: filePath ?? filePath.assets[0].uri,
+                        uri: filePath ?? filePath,
                       }}
                       positionMillis={videoPosition}
                       shouldPlay={videoPlaying}
@@ -579,7 +604,7 @@ function AddFile({ childTrigger, display }) {
                     ? {
                         borderWidth: 2,
                         borderRadius: 5,
-                        width: "78%",
+                        width: Platform.OS === "ios" ? "78%" : "76%",
                         marginRight: "1%",
                       }
                     : { transform: [{ rotate: "90deg" }] }
@@ -597,8 +622,8 @@ function AddFile({ childTrigger, display }) {
                             backgroundColor: "black",
                           }
                     }
-                    source={filePath ?? filePath.assets[0].uri}
-                    contentFit="cover"
+                    source={filePath ?? filePath}
+                    contentFit="contain"
                   >
                     <View
                       style={
@@ -641,7 +666,11 @@ function AddFile({ childTrigger, display }) {
                   display: btnDisplay ? "block" : "none",
                 }}
               >
-                <Edit />
+                <Edit
+                  filePath={filePath}
+                  changeFilePath={changeFilePath}
+                  type="image"
+                />
                 <Delete deleteResource={deleteResource} type="image" />
               </View>
             </View>
