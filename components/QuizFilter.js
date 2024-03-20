@@ -50,7 +50,7 @@ function QuizFilter(props) {
           width={200}
           height={100}
           disabled={currentValue !== null ? false : true}
-          raiseLevel={5}
+          raiseLevel={currentValue !== null ? 5 : 0}
           onPress={() => {
             props.navigation.navigate(currentValue + " Quiz");
           }}

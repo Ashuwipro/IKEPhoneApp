@@ -16,47 +16,48 @@ export default function MCAQuiz() {
   }
 
   const result = [
-    {
-      id: 1,
-      question:
-        "Which of the following option leads to the portability and security of Java?",
-      optionA: "Bytecode is executed by JVM",
-      optionB: "The applet makes the Java code secure and portable",
-      // optionC: "Use of exception handling",
-      // optionD: "Dynamic binding between objects",
-      correctAnswer: ["optionA", "optionB"],
-      type: "MCA",
-      numOpt: 2,
-    },
-    {
-      id: 2,
-      question: "Which of the following is not a Java features?",
-      optionA: "Dynamic",
-      optionB: "Architecture Neutral",
-      optionC: "Use of pointers",
-      // optionD: "Object-oriented",
-      correctAnswer: ["optionB", "optionC"],
-      type: "MCA",
-      numOpt: 3,
-    },
-    {
-      id: 3,
-      question:
-        "What is the return type of the hashCode() method in the Object class?",
-      optionA: "Object",
-      optionB: "int",
-      optionC: "long",
-      optionD: "void",
-      correctAnswer: ["optionC", "optionD"],
-      type: "MCA",
-      numOpt: 4,
-    },
+    // {
+    //   id: 1,
+    //   question:
+    //     "Which of the following option leads to the portability and security of Java?",
+    //   optionA: "Bytecode is executed by JVM",
+    //   optionB: "The applet makes the Java code secure and portable",
+    //   // optionC: "Use of exception handling",
+    //   // optionD: "Dynamic binding between objects",
+    //   correctAnswer: ["optionA", "optionB"],
+    //   type: "MCA",
+    //   numOpt: 2,
+    // },
+    // {
+    //   id: 2,
+    //   question: "Which of the following is not a Java features?",
+    //   optionA: "Dynamic",
+    //   optionB: "Architecture Neutral",
+    //   optionC: "Use of pointers",
+    //   // optionD: "Object-oriented",
+    //   correctAnswer: ["optionB", "optionC"],
+    //   type: "MCA",
+    //   numOpt: 3,
+    // },
+    // {
+    //   id: 3,
+    //   question:
+    //     "What is the return type of the hashCode() method in the Object class?",
+    //   optionA: "Object",
+    //   optionB: "int",
+    //   optionC: "long",
+    //   optionD: "void",
+    //   correctAnswer: ["optionC", "optionD"],
+    //   type: "MCA",
+    //   numOpt: 4,
+    // },
     {
       id: 4,
       question:
         "Which of the following option leads to the portability and security of Java?",
       optionA: "Bytecode is executed by JVM",
-      optionB: "The applet makes the Java code secure and portable",
+      optionB:
+        "The applet makes the Java code secure and portable and the the cnde s andjkekdfkjdjgjfk adgjkds agsjn afjnvjdvfjn gjkgkjskgs afjdnnfbj sdfgjvndvjxjfdjdf fsjbgjdfxv fsbeednvj dfjngjks",
       // optionC: "Use of exception handling",
       // optionD: "Dynamic binding between objects",
       correctAnswer: ["optionA"],
@@ -99,6 +100,11 @@ export default function MCAQuiz() {
   const [optCColor, setOptCColor] = React.useState("white");
   const [optDColor, setOptDColor] = React.useState("white");
   const [optEColor, setOptEColor] = React.useState("white");
+  const [optionARaise, setOptionARaise] = React.useState(5);
+  const [optionBRaise, setOptionBRaise] = React.useState(5);
+  const [optionCRaise, setOptionCRaise] = React.useState(5);
+  const [optionDRaise, setOptionDRaise] = React.useState(5);
+  const [optionERaise, setOptionERaise] = React.useState(5);
 
   const [currentQues, setCurrentQues] = React.useState(0);
   const [totalQues, setTotalQues] = React.useState(0);
@@ -112,6 +118,13 @@ export default function MCAQuiz() {
   const [numOpt, setNumOpt] = React.useState(
     myFunc(result[currentQues]["numOpt"])
   );
+  const [display, setDisplay] = React.useState(false);
+
+  const [heightA, setHeightA] = React.useState(0);
+  const [heightB, setHeightB] = React.useState(0);
+  const [heightC, setHeightC] = React.useState(0);
+  const [heightD, setHeightD] = React.useState(0);
+  const [heightE, setHeightE] = React.useState(0);
 
   let i = 0;
 
@@ -350,6 +363,13 @@ export default function MCAQuiz() {
   };
 
   React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDisplay(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  React.useEffect(() => {
     if (currentQues + 1 === result.length) {
       setLastQuestion(true);
     } else {
@@ -364,6 +384,7 @@ export default function MCAQuiz() {
   }, [currentQues]);
 
   const nextPress = () => {
+    setDisplay(false);
     if (compare(result[currentQues].correctAnswer, tempArray)) {
       setCorrectAnsCount(correctAnsCount + 1);
     }
@@ -374,15 +395,24 @@ export default function MCAQuiz() {
     setOptBColor("white");
     setOptCColor("white");
     setOptDColor("white");
+    const timer = setTimeout(() => {
+      setDisplay(true);
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   const prevPress = () => {
+    setDisplay(false);
     setCurrentQues(currentQues - 1);
     setProgress(progress - 1 / totalQues);
     setOptAColor("white");
     setOptBColor("white");
     setOptCColor("white");
     setOptDColor("white");
+    const timer = setTimeout(() => {
+      setDisplay(true);
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   const submitPress = () => {
@@ -398,23 +428,23 @@ export default function MCAQuiz() {
   }, []);
 
   const Opt = [
-    [optAColor, optAPress, "optionA", optionA],
-    [optBColor, optBPress, "optionB", optionB],
-    [optCColor, optCPress, "optionC", optionC],
-    [optDColor, optDPress, "optionD", optionD],
-    [optEColor, optEPress, "optionE", optionE],
+    [optAColor, optAPress, "optionA", optionA, heightA, setHeightA],
+    [optBColor, optBPress, "optionB", optionB, heightB, setHeightB],
+    [optCColor, optCPress, "optionC", optionC, heightC, setHeightC],
+    [optDColor, optDPress, "optionD", optionD, heightD, setHeightD],
+    [optEColor, optEPress, "optionE", optionE, heightE, setHeightE],
   ];
 
   return (
     <SafeAreaView
       style={{ backgroundColor: "white", width: "100%", height: "100%" }}
     >
-      <View style={{ marginVertical: 20, marginLeft: 20 }}>
+      <View style={{ marginVertical: 30, marginHorizontal: "5%" }}>
         <Progress.Bar
           width={390}
           progress={progress}
           height={15}
-          borderRadius={25}
+          borderRadius={5}
           color="blue"
           unfilledColor="yellow"
         />
@@ -437,44 +467,149 @@ export default function MCAQuiz() {
 
       {numOpt &&
         numOpt.map((item) => (
-          <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-            <ThemedButton
-              name="bruce"
-              type="primary"
-              backgroundColor={Opt[item][0]}
-              textColor="black"
-              width={"100%"}
-              height={70}
-              disabled={false}
-              raiseLevel={5}
-              onPress={Opt[item][1]}
-            >
-              {result[currentQues].type === "MCQ" ? (
-                <RadioButton.Android
-                  backgroundColor={
-                    tempArray.includes(Opt[item][2]) ? "yellow" : "white"
-                  }
-                  color="blue"
-                  status={
-                    tempArray.includes(Opt[item][2]) ? "checked" : "unchecked"
-                  }
-                />
-              ) : (
-                <Checkbox.Android
-                  status={
-                    tempArray.includes(Opt[item][2]) ? "checked" : "unchecked"
-                  }
-                  onPress={() => {
-                    console.log("optionA pressed");
+          <View key={item} style={{ marginHorizontal: "4%", marginTop: "5%" }}>
+            {display && (
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                backgroundColor={Opt[item][0]}
+                textColor="black"
+                width={"100%"}
+                height={Opt[item][4]}
+                disabled={false}
+                raiseLevel={5}
+                onPress={Opt[item][1]}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    display: "flex",
+                    flex: 1,
                   }}
-                  backgroundColor={
-                    tempArray.includes(Opt[item][2]) ? "yellow" : "white"
+                >
+                  <View
+                    style={{
+                      marginVertical: "3%",
+                    }}
+                  >
+                    {result[currentQues].type === "MCQ" ? (
+                      <RadioButton.Android
+                        backgroundColor={
+                          tempArray.includes(Opt[item][2]) ? "yellow" : "white"
+                        }
+                        color="blue"
+                        status={
+                          tempArray.includes(Opt[item][2])
+                            ? "checked"
+                            : "unchecked"
+                        }
+                      />
+                    ) : (
+                      <Checkbox.Android
+                        status={
+                          tempArray.includes(Opt[item][2])
+                            ? "checked"
+                            : "unchecked"
+                        }
+                        onPress={() => {
+                          console.log("optionA pressed");
+                        }}
+                        backgroundColor={
+                          tempArray.includes(Opt[item][2]) ? "yellow" : "white"
+                        }
+                        color="blue"
+                      />
+                    )}
+                  </View>
+                  <View
+                    style={{
+                      marginVertical: "5%",
+                      marginRight: "15%",
+                      marginLeft: "2%",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        textAlign: "justify",
+                      }}
+                    >
+                      {Opt[item][3]}
+                    </Text>
+                  </View>
+                </View>
+              </ThemedButton>
+            )}
+            {!display && (
+              <View
+                onLayout={(event) => {
+                  if (event.nativeEvent.layout.height > 80) {
+                    Opt[item][5](event.nativeEvent.layout.height);
+                  } else {
+                    Opt[item][5](80);
                   }
-                  color="blue"
-                />
-              )}
-              <Text style={{ fontWeight: "bold" }}>{Opt[item][3]}</Text>
-            </ThemedButton>
+                }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  borderWidth: 2,
+                }}
+              >
+                <View
+                  style={{
+                    marginVertical: "3%",
+                  }}
+                >
+                  {result[currentQues].type === "MCQ" ? (
+                    <RadioButton.Android
+                      backgroundColor={
+                        tempArray.includes(Opt[item][2]) ? "yellow" : "white"
+                      }
+                      color="blue"
+                      status={
+                        tempArray.includes(Opt[item][2])
+                          ? "checked"
+                          : "unchecked"
+                      }
+                    />
+                  ) : (
+                    <Checkbox.Android
+                      status={
+                        tempArray.includes(Opt[item][2])
+                          ? "checked"
+                          : "unchecked"
+                      }
+                      onPress={() => {
+                        console.log("optionA pressed");
+                      }}
+                      backgroundColor={
+                        tempArray.includes(Opt[item][2]) ? "yellow" : "white"
+                      }
+                      color="blue"
+                    />
+                  )}
+                </View>
+                <View
+                  style={{
+                    marginVertical: "5%",
+                    marginRight: "15%",
+                    marginLeft: "2%",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 18,
+                      textAlign: "justify",
+                    }}
+                  >
+                    {Opt[item][3]}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
         ))}
 
