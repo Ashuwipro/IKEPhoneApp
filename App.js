@@ -9,6 +9,8 @@ import MCAQuiz from "./components/MCAQuiz";
 import QuestionsDetails from "./components/QuestionsDetails";
 import LoginOrRegister from "./components/LoginOrRegister";
 import Register from "./components/Register";
+import ResultScreen from "./components/ResultScreen";
+import ReviewResult from "./components/ReviewResult";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -16,13 +18,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="MCA Quiz" component={MCAQuiz} />
         <Stack.Screen name="Home" component={MainScreen} />
         <Stack.Screen name="Upload Questions" component={UploadQuestions} />
         {/* <Stack.Screen name="Play Quiz" component={PlayQuiz} /> */}
         <Stack.Screen name="Choose Type" component={QuizFilter} />
         <Stack.Screen name="MCQ Quiz" component={MCQQuiz} />
-
+        <Stack.Screen name="MCA Quiz" component={MCAQuiz} />
+        <Stack.Screen name="Result" component={ResultScreen} />
+        <Stack.Screen name="Review" component={ReviewResult} />
         <Stack.Screen name="Questions" component={QuestionsDetails} />
         <Stack.Screen
           name="Login to your account"

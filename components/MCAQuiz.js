@@ -1,18 +1,27 @@
 import React from "react";
 import { View, Text, SafeAreaView, StyleSheet, Modal } from "react-native";
 import { ThemedButton } from "react-native-really-awesome-button";
-import { ProgressSteps, ProgressStep } from "react-native-progress-steps";
 import { Checkbox, RadioButton } from "react-native-paper";
 import * as Progress from "react-native-progress";
 // import { Data as result } from "./../assets/data.json";
 
-export default function MCAQuiz() {
+export default function MCAQuiz(props) {
   function myFunc(count) {
     var arr = new Array(count);
     for (x = 0; x < count; x++) {
       arr[x] = x;
     }
     return arr;
+  }
+
+  function arraysAreIdentical(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (var i = 0, len = arr1.length; i < len; i++) {
+      if (arr1[i] !== arr2[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   const result = [
@@ -100,19 +109,16 @@ export default function MCAQuiz() {
   const [optCColor, setOptCColor] = React.useState("white");
   const [optDColor, setOptDColor] = React.useState("white");
   const [optEColor, setOptEColor] = React.useState("white");
-  const [optionARaise, setOptionARaise] = React.useState(5);
-  const [optionBRaise, setOptionBRaise] = React.useState(5);
-  const [optionCRaise, setOptionCRaise] = React.useState(5);
-  const [optionDRaise, setOptionDRaise] = React.useState(5);
-  const [optionERaise, setOptionERaise] = React.useState(5);
 
   const [currentQues, setCurrentQues] = React.useState(0);
   const [totalQues, setTotalQues] = React.useState(0);
   const [lastQuestion, setLastQuestion] = React.useState(false);
   const [correctAnsCount, setCorrectAnsCount] = React.useState(0);
-  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [incorrectAnsCount, setIncorrectAnsCount] = React.useState(0);
+  const [skippedAnsCount, setSkippedAnsCount] = React.useState(0);
   const [tempArray, setTempArray] = React.useState([]);
   const [array, setArray] = React.useState([]);
+  const [correctArray, setCorrectArray] = React.useState([]);
 
   const [progress, setProgress] = React.useState(0);
   const [numOpt, setNumOpt] = React.useState(
@@ -127,20 +133,6 @@ export default function MCAQuiz() {
   const [heightE, setHeightE] = React.useState(0);
 
   let i = 0;
-
-  function compare(a1, a2) {
-    if (a1.length === a2.length) {
-      a1.sort();
-      a2.sort();
-      for (let i = 0; i < a1.length; i++) {
-        if (a1[i] !== a2[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
 
   const optAPress = () => {
     if (result[currentQues].type === "MCQ") {
@@ -363,9 +355,51 @@ export default function MCAQuiz() {
   };
 
   React.useEffect(() => {
+    if (correctAnsCount > 0 || incorrectAnsCount > 0 || skippedAnsCount > 0) {
+      if (correctAnsCount + incorrectAnsCount + skippedAnsCount === totalQues) {
+        console.log("Per:=", Math.floor((correctAnsCount / totalQues) * 100));
+        let per = Math.floor((correctAnsCount / totalQues) * 100);
+        const newtimer = setTimeout(() => {
+          props.navigation.navigate("Result", {
+            correctAnsCount,
+            incorrectAnsCount,
+            skippedAnsCount,
+            per,
+          });
+          setTempArray([]);
+        }, 500);
+        return () => clearTimeout(newtimer);
+      }
+    }
+  }, [correctAnsCount, incorrectAnsCount, skippedAnsCount, totalQues]);
+
+  React.useEffect(() => {
+    console.log("Array:=", array);
+    console.log("CorrectArray:=", correctArray);
+
+    if (array.length === correctArray.length) {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i].length === 0) {
+          setSkippedAnsCount((skippedAnsCount) => skippedAnsCount + 1);
+        } else if (arraysAreIdentical(array[i], correctArray[i])) {
+          setCorrectAnsCount((correctAnsCount) => correctAnsCount + 1);
+        } else {
+          setIncorrectAnsCount((incorrectAnsCount) => incorrectAnsCount + 1);
+        }
+      }
+    }
+  }, [array, correctArray]);
+
+  React.useEffect(() => {
+    let total = [];
+    for (let obj of result) {
+      total.push(obj.correctAnswer);
+    }
+    setCorrectArray([...total]);
+
     const timer = setTimeout(() => {
       setDisplay(true);
-    }, 500);
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -385,9 +419,8 @@ export default function MCAQuiz() {
 
   const nextPress = () => {
     setDisplay(false);
-    if (compare(result[currentQues].correctAnswer, tempArray)) {
-      setCorrectAnsCount(correctAnsCount + 1);
-    }
+    tempArray.sort();
+    setArray([...array, tempArray]);
     setTempArray([]);
     setCurrentQues(currentQues + 1);
     setProgress(progress + 1 / totalQues);
@@ -417,10 +450,7 @@ export default function MCAQuiz() {
 
   const submitPress = () => {
     setProgress(progress + 1 / totalQues);
-    if (compare(result[currentQues].correctAnswer, tempArray)) {
-      setCorrectAnsCount(correctAnsCount + 1);
-    }
-    setIsModalVisible(true);
+    setArray([...array, tempArray]);
   };
 
   React.useEffect(() => {
@@ -613,114 +643,6 @@ export default function MCAQuiz() {
           </View>
         ))}
 
-      {/* <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          backgroundColor={optBColor}
-          textColor="black"
-          width={"100%"}
-          height={70}
-          disabled={false}
-          raiseLevel={5}
-          onPress={optBPress}
-        >
-          {result[currentQues].type === "MCQ" ? (
-            <RadioButton.Android
-              backgroundColor={
-                tempArray.includes("optionB") ? "yellow" : "white"
-              }
-              color="blue"
-              status={tempArray.includes("optionB") ? "checked" : "unchecked"}
-            />
-          ) : (
-            <Checkbox.Android
-              status={tempArray.includes("optionB") ? "checked" : "unchecked"}
-              onPress={() => {
-                console.log("optionB pressed");
-              }}
-              backgroundColor={
-                tempArray.includes("optionB") ? "yellow" : "white"
-              }
-              color="blue"
-            />
-          )}
-          <Text style={{ fontWeight: "bold" }}>{optionB}</Text>
-        </ThemedButton>
-      </View>
-
-      <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          backgroundColor={optCColor}
-          textColor="black"
-          width={"100%"}
-          height={70}
-          disabled={false}
-          raiseLevel={5}
-          onPress={optCPress}
-        >
-          {result[currentQues].type === "MCQ" ? (
-            <RadioButton.Android
-              backgroundColor={
-                tempArray.includes("optionC") ? "yellow" : "white"
-              }
-              color="blue"
-              status={tempArray.includes("optionC") ? "checked" : "unchecked"}
-            />
-          ) : (
-            <Checkbox.Android
-              status={tempArray.includes("optionC") ? "checked" : "unchecked"}
-              onPress={() => {
-                console.log("optionC pressed");
-              }}
-              backgroundColor={
-                tempArray.includes("optionC") ? "yellow" : "white"
-              }
-              color="blue"
-            />
-          )}
-          <Text style={{ fontWeight: "bold" }}>{optionC}</Text>
-        </ThemedButton>
-      </View>
-
-      <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          backgroundColor={optDColor}
-          textColor="black"
-          width={"100%"}
-          height={70}
-          disabled={false}
-          raiseLevel={5}
-          onPress={optDPress}
-        >
-          {result[currentQues].type === "MCQ" ? (
-            <RadioButton.Android
-              backgroundColor={
-                tempArray.includes("optionD") ? "yellow" : "white"
-              }
-              color="blue"
-              status={tempArray.includes("optionD") ? "checked" : "unchecked"}
-            />
-          ) : (
-            <Checkbox.Android
-              status={tempArray.includes("optionD") ? "checked" : "unchecked"}
-              onPress={() => {
-                console.log("optionD pressed");
-              }}
-              backgroundColor={
-                tempArray.includes("optionD") ? "yellow" : "white"
-              }
-              color="blue"
-            />
-          )}
-          <Text style={{ fontWeight: "bold" }}>{optionD}</Text>
-        </ThemedButton>
-      </View> */}
-
       <View
         style={{
           flexDirection: "row",
@@ -741,40 +663,7 @@ export default function MCAQuiz() {
             PREVIOUS
           </ThemedButton>
         </View>
-        <Modal transparent={true} visible={isModalVisible} animationType="fade">
-          <View style={style.centeredView}>
-            <View style={style.modalView}>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                Quiz Completed !!!
-              </Text>
 
-              <Text style={{ fontSize: 20 }}>
-                Your Score : {correctAnsCount}/{totalQues}
-              </Text>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <ThemedButton
-                  name="bruce"
-                  type="primary"
-                  backgroundColor="green"
-                  width={150}
-                  disabled={false}
-                  raiseLevel={5}
-                  onPress={() => {
-                    setIsModalVisible(false);
-                  }}
-                >
-                  SUBMIT
-                </ThemedButton>
-              </View>
-            </View>
-          </View>
-        </Modal>
         <View
           style={{
             marginHorizontal: 20,
@@ -811,20 +700,3 @@ export default function MCAQuiz() {
     </SafeAreaView>
   );
 }
-
-const style = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalView: {
-    backgroundColor: "white",
-    padding: 40,
-    margin: 10,
-    borderRadius: 5,
-    shadowColor: "black",
-    elevation: 5,
-  },
-});
